@@ -26,6 +26,20 @@ public class CustomerController {
         return new ResponseEntity<>(myCustomers, HttpStatus.OK);
     }
 
+    @DeleteMapping(value = "/customer/{custcode}")
+    public ResponseEntity<?> deleteCustomerByCustomerCode(@PathVariable long custcode){
+        customerService.delete(custcode);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping(value = "/customer/{custcode}", consumes = "application/json")
+    public ResponseEntity<?> updateCustomerByCustomerCode(@PathVariable long custcode, @Valid @RequestBody Customer updateCustomer){
+        customerService.update(updateCustomer, custcode);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PutMapping(value = "/customer/{custcode}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> replaceCustomer(@PathVariable long custcode, @Valid @RequestBody Customer customer){
         customer.setCustcode(custcode);
