@@ -3,11 +3,14 @@ package com.lambdaschool.javaorders.controllers;
 import com.lambdaschool.javaorders.models.Order;
 import com.lambdaschool.javaorders.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -37,5 +40,23 @@ public class OrderController {
         updateOrder = orderService.save(updateOrder);
 
         return new ResponseEntity<>(updateOrder, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/order", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> addOrder(@Valid @RequestBody Order newOrder){
+        newOrder.setOrdernum(0);
+
+        newOrder = orderService.save(newOrder);
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        URI newOrderURI = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{ordernum}")
+                .buildAndExpand(newOrder.getOrdernum())
+                .toUri();
+
+        responseHeaders.setLocation(newOrderURI);
+
+        return new ResponseEntity<>(newOrder, responseHeaders, HttpStatus.CREATED);
     }
 }
