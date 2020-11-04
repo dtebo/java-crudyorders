@@ -2,6 +2,7 @@ package com.lambdaschool.javaorders.services;
 
 import com.lambdaschool.javaorders.models.Customer;
 import com.lambdaschool.javaorders.models.Order;
+import com.lambdaschool.javaorders.models.Payment;
 import com.lambdaschool.javaorders.repositories.CustomerRepository;
 import com.lambdaschool.javaorders.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +49,25 @@ public class CustomerServiceImpl implements CustomerService {
         newCustomer.setPhone(customer.getPhone());
         newCustomer.setAgent(customer.getAgent());
 
-        for(Order o : customer.getOrders()){
-            Order newOrder = orderRepository.findById(o.getOrdernum())
-                    .orElseThrow(() -> new EntityNotFoundException("Order " + o.getOrdernum() + " Not Found!"));
+        if(customer.getOrders().size() > 0) {
+            newCustomer.getOrders().clear();
+
+            for(Order o : customer.getOrders()){
+                Order newOrder = new Order();
+                newOrder.setOrdernum(o.getOrdernum());
+                newOrder.setOrdamount(o.getOrdamount());
+                newOrder.setAdvanceamount(o.getAdvanceamount());
+                newOrder.setOrderdescription(o.getOrderdescription());
+
+                for(Payment p : o.getPayments()){
+                    Payment newPayment = new Payment();
+                    newPayment.setPaymentid(p.getPaymentid());
+
+                    newOrder.getPayments().add(newPayment);
+                }
+
+                newCustomer.getOrders().add(newOrder);
+            }
         }
 
         return customerRepository.save(newCustomer);

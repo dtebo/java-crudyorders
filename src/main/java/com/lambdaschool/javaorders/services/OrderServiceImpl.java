@@ -1,6 +1,7 @@
 package com.lambdaschool.javaorders.services;
 
 import com.lambdaschool.javaorders.models.Order;
+import com.lambdaschool.javaorders.models.Payment;
 import com.lambdaschool.javaorders.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,19 @@ public class OrderServiceImpl implements OrderService {
 
         newOrder.setOrdamount(order.getOrdamount());
         newOrder.setAdvanceamount(order.getAdvanceamount());
-        newOrder.setCustomer(order.getCustomer());
         newOrder.setOrderdescription(order.getOrderdescription());
+        newOrder.setCustomer(order.getCustomer());
 
+        if(order.getPayments().size() > 0){
+            newOrder.getPayments().clear();
+
+            for(Payment p : order.getPayments()){
+                Payment newPayment = new Payment();
+                newPayment.setPaymentid(p.getPaymentid());
+
+                newOrder.getPayments().add(newPayment);
+            }
+        }
         return orderRepository.save(newOrder);
     }
 
