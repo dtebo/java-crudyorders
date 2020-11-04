@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         for(Order o : customer.getOrders()){
             Order newOrder = orderRepository.findById(o.getOrdernum())
-                    .orElseThrow(() -> new EntityNotFoundException("Order " + order.getOrdernum() + " Not Found!"));
+                    .orElseThrow(() -> new EntityNotFoundException("Order " + o.getOrdernum() + " Not Found!"));
         }
 
         return customerRepository.save(newCustomer);
@@ -64,5 +65,84 @@ public class CustomerServiceImpl implements CustomerService {
                 .forEachRemaining(customerList::add);
 
         return customerList;
+    }
+
+    @Transactional
+    @Override
+    public void delete(long id){
+
+    }
+
+    @Transactional
+    @Override
+    public Customer update(Customer customer, long id) {
+        Customer updateCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Customer " + customer.getCustcode() + " Not Found!"));
+
+        if(customer.getCustname() != null){
+            updateCustomer.setCustname(customer.getCustname());
+        }
+
+        if(customer.getCustcity() != null){
+            updateCustomer.setCustcity(customer.getCustcity());
+        }
+
+        if(customer.getWorkingarea() != null){
+            updateCustomer.setWorkingarea(customer.getWorkingarea());
+        }
+
+        if(customer.getCustcountry() != null){
+            updateCustomer.setCustcountry(customer.getCustcountry());
+        }
+
+        if(customer.getGrade() != null){
+            updateCustomer.setGrade(customer.getGrade());
+        }
+
+        if(customer.getOpeningamt() != 0.0){
+            updateCustomer.setOpeningamt(customer.getOpeningamt());
+        }
+
+        if(customer.getReceiveamt() != 0.0){
+            updateCustomer.setReceiveamt(customer.getReceiveamt());
+        }
+
+        if(customer.getPaymentamt() != 0.0){
+            updateCustomer.setPaymentamt(customer.getPaymentamt());
+        }
+
+        if(customer.getOutstandingamt() != 0.0){
+            updateCustomer.setOutstandingamt(customer.getOutstandingamt());
+        }
+
+        if(customer.getPhone() != null){
+            updateCustomer.setPhone(customer.getPhone());
+        }
+
+        if(customer.getAgent() != null){
+            updateCustomer.setAgent(customer.getAgent());
+        }
+
+        if(customer.getOrders().size() > 0){
+            updateCustomer.getOrders().clear();
+
+            for(Order o : customer.getOrders()){
+                Order order = new Order();
+                order.setOrdamount(o.getOrdamount());
+                order.setAdvanceamount(o.getAdvanceamount());
+                order.setCustomer(o.getCustomer());
+                order.setOrderdescription(o.getOrderdescription());
+
+                updateCustomer.getOrders().add(order);
+            }
+        }
+
+        return customerRepository.save(updateCustomer);
+    }
+
+    @Transactional
+    @Override
+    public void deleteAllCustomers() {
+
     }
 }

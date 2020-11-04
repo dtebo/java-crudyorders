@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +16,24 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     OrderRepository orderRepository;
 
+    @Transactional
     @Override
     public Order save(Order order) {
-        return orderRepository.save(order);
+        Order newOrder = new Order();
+
+        if(order.getOrdernum() != 0){
+            orderRepository.findById(order.getOrdernum())
+                    .orElseThrow(() -> new EntityNotFoundException("Order " + order.getOrdernum() + " Not Found!"));
+
+            newOrder.setOrdernum(order.getOrdernum());
+        }
+
+        newOrder.setOrdamount(order.getOrdamount());
+        newOrder.setAdvanceamount(order.getAdvanceamount());
+        newOrder.setCustomer(order.getCustomer());
+        newOrder.setOrderdescription(order.getOrderdescription());
+
+        return orderRepository.save(newOrder);
     }
 
     @Override
@@ -29,5 +45,42 @@ public class OrderServiceImpl implements OrderService {
                 .forEachRemaining(myOrders::add);
 
         return myOrders;
+    }
+
+    @Transactional
+    @Override
+    public void delete(long id) {
+
+    }
+
+    @Transactional
+    @Override
+    public Order update(Order order, long id) {
+        Order updateOrder = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order " + order.getOrdernum() + " Not Found!"));
+
+        if(order.getOrdamount() != 0.0){
+            updateOrder.setOrdamount(order.getOrdamount());
+        }
+
+        if(order.getAdvanceamount() != 0.0){
+            updateOrder.setAdvanceamount(order.getAdvanceamount());
+        }
+
+        if(order.getCustomer() != null){
+            updateOrder.setCustomer(order.getCustomer());
+        }
+
+        if(order.getOrderdescription() != null){
+            updateOrder.setOrderdescription(order.getOrderdescription());
+        }
+
+        return orderRepository.save(updateOrder);
+    }
+
+    @Transactional
+    @Override
+    public void deleteAllOrders() {
+
     }
 }
